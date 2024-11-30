@@ -7,7 +7,7 @@
 import UIKit
 
 final class TaskDetailModuleBuilder {
-  static func build(for task: Task) -> TaskDetailViewController {
+  static func build(for task: TaskItem) -> TaskDetailViewController {
     let view = TaskDetailViewController(task: task)
     let interactor = TaskDetailInteractor()
     let presenter = TaskDetailPresenter()

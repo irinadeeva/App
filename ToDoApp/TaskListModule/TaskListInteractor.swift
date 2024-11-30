@@ -9,7 +9,7 @@ protocol TaskListInteractorInput: AnyObject {
 }
 
 protocol TaskListInteractorOutput: AnyObject {
-  func didFetchTasks(_ tasks: [Task])
+  func didFetchTasks(_ tasks: [TaskItem])
   func didFailToFetchTasks(with error: Error)
 }
 
@@ -19,10 +19,12 @@ final class TaskListInteractor: TaskListInteractorInput {
   func fetchTasks() {
     // Загружаем данные. Здесь можно подключить API вместо симуляции.
     let tasks = [
-      Task(id: 1, todo: "Do something nice for someone you care about", completed: false, userId: 152),
-      Task(id: 2, todo: "Memorize a poem", completed: true, userId: 13),
-      Task(id: 3, todo: "Watch a classic movie", completed: true, userId: 68)
+      TaskItem(id: 1, todo: "Do something nice for someone you care about", completed: false, userId: 152),
+      TaskItem(id: 2, todo: "Memorize a poem", completed: true, userId: 13),
+      TaskItem(id: 3, todo: "Watch a classic movie", completed: true, userId: 68)
     ]
+
+    TaskService.shared.loadPhoto(completion: { _ in })
     output?.didFetchTasks(tasks)
   }
 }

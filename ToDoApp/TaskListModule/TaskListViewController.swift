@@ -7,7 +7,7 @@
 import UIKit
 
 protocol TaskListViewProtocol: AnyObject {
-  func showTasks(_ tasks: [Task])
+  func showTasks(_ tasks: [TaskItem])
 }
 
 final class TaskListViewController: UIViewController {
@@ -16,7 +16,7 @@ final class TaskListViewController: UIViewController {
   var presenter: TaskListPresenterProtocol?
   private let tableView = UITableView()
   
-  private var tasks: [Task] = []
+  private var tasks: [TaskItem] = []
   
   // MARK: - View lifecycle
   override func viewDidLoad() {
@@ -39,7 +39,7 @@ private extension TaskListViewController {
 
 // MARK: - TaskListViewProtocol
 extension TaskListViewController: TaskListViewProtocol {
-  func showTasks(_ tasks: [Task]) {
+  func showTasks(_ tasks: [TaskItem]) {
     self.tasks = tasks
     tableView.reloadData()
   }

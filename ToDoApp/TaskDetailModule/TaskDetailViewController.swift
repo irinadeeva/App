@@ -13,9 +13,9 @@ final class TaskDetailViewController: UIViewController {
   // MARK: - Public
   var presenter: TaskDetailPresenterProtocol?
 
-  private let task: Task
+  private let task: TaskItem
 
-  init(task: Task) {
+  init(task: TaskItem) {
     self.task = task
     super.init(nibName: nil, bundle: nil)
   }
