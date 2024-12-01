@@ -96,7 +96,7 @@ final class TaskItemsStorage {
 
       do {
         try context.save()
-        completion(.success(taskItem.id)) // Возвращаем ID удаленного объекта
+        completion(.success(taskItem.id))
       } catch {
         context.rollback()
         completion(.failure(.saveFailed))
@@ -121,7 +121,7 @@ final class TaskItemsStorage {
 
           do {
               try context.save()
-              completion(.success(taskItem)) // Возвращаем обновленный объект
+              completion(.success(taskItem))
           } catch {
               context.rollback()
               completion(.failure(.saveFailed))
@@ -177,7 +177,7 @@ final class TaskItemsStorage {
 
       do {
           try context.save()
-          completion(.success(taskItem)) // Возвращаем добавленный объект
+          completion(.success(taskItem))
       } catch {
           context.rollback()
           completion(.failure(.saveFailed))

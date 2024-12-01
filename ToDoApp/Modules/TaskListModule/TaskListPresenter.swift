@@ -5,14 +5,13 @@
 //
 
 enum TaskListState {
-  case initial, loading, data([TaskItem]),
-       //       update,
-       failed(Error)
+  case initial, loading, data([TaskItem]), update(TaskItem), failed(Error)
 }
 
 protocol TaskListPresenterProtocol: AnyObject {
   func viewDidLoad()
   func didSelectTask(_ task: TaskItem)
+  func didTaskCompleted(_ task: TaskItem)
 }
 
 final class TaskListPresenter {
@@ -42,8 +41,9 @@ final class TaskListPresenter {
       let errorModel = makeErrorModel(error)
       view?.hideLoadingAndUnblockUI()
       view?.showError(errorModel)
-      //    case .update:
-      //
+    case .update(let taskItem):
+      view?.showLoadingAndBlockUI()
+      interactor?.updateTaskItem(taskItem)
     }
   }
 
@@ -65,6 +65,14 @@ final class TaskListPresenter {
 }
 
 extension TaskListPresenter: TaskListInteractorOutput {
+  func didFetchTask(_ task: TaskItem) {
+    if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+      tasks[index] = task
+    }
+
+    state = .data(tasks)
+  }
+  
   func didFetchTasks(_ tasks: [TaskItem]) {
     state = .data(tasks)
   }
@@ -75,11 +83,15 @@ extension TaskListPresenter: TaskListInteractorOutput {
 }
 
 extension TaskListPresenter: TaskListPresenterProtocol {
+  func viewDidLoad() {
+    state = .loading
+  }
+
   func didSelectTask(_ task: TaskItem) {
     router?.navigateToTaskDetail(with: task)
   }
 
-  func viewDidLoad() {
-    state = .loading
+  func didTaskCompleted(_ task: TaskItem) {
+    state = .update(task)
   }
 }

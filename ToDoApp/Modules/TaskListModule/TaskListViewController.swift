@@ -52,18 +52,18 @@ private extension TaskListViewController {
     navigationBar.scrollEdgeAppearance = appearance
     navigationBar.compactAppearance = appearance
 
-//    searchController.obscuresBackgroundDuringPresentation = false
+    //    searchController.obscuresBackgroundDuringPresentation = false
     searchController.searchBar.tintColor = .white
     searchController.searchBar.placeholder = "Search Tasks"
     searchController.searchResultsUpdater = self
     navigationItem.searchController = searchController
-//    // Customizing the search bar's background color
-//    let searchBarAppearance = UISearchBar
-//    searchBarAppearance.backgroundColor = UIColor(resource: .customGrey) // Custom color here
-//
-//    // Apply appearance
-//    searchController.searchBar.standardAppearance = searchBarAppearance
-//    searchController.searchBar.scrollEdgeAppearance = searchBarAppearance
+    //    // Customizing the search bar's background color
+    //    let searchBarAppearance = UISearchBar
+    //    searchBarAppearance.backgroundColor = UIColor(resource: .customGrey) // Custom color here
+    //
+    //    // Apply appearance
+    //    searchController.searchBar.standardAppearance = searchBarAppearance
+    //    searchController.searchBar.scrollEdgeAppearance = searchBarAppearance
 
 
 
@@ -156,8 +156,9 @@ extension TaskListViewController: UITableViewDataSource {
     let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as! TaskTableViewCell
 
     let task = filteredTasks[indexPath.row]
-
-    cell.configure(with: task){}
+    cell.prepareForReuse()
+    cell.configure(with: task)
+    cell.delegate = self
     return cell
   }
 }
@@ -171,22 +172,33 @@ extension TaskListViewController: UITableViewDelegate {
 
 extension TaskListViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    guard let searchText = searchController.searchBar.text, !searchText.isEmpty else {}
+    guard let searchText = searchController.searchBar.text, !searchText.isEmpty else { return }
 
     //TODO: do search bar
   }
 }
 
+extension TaskListViewController: TaskTableViewCellDelegate {
+  func didToggleCompletion(for cell: TaskTableViewCell) {
+    guard let indexPath = tableView.indexPath(for: cell) else { return }
+    var task = filteredTasks[indexPath.row]
+    task.completed.toggle()
+    presenter?.didTaskCompleted(task)
+  }
+}
 
 
+
+protocol TaskTableViewCellDelegate: AnyObject {
+  func didToggleCompletion(for cell: TaskTableViewCell)
+}
 
 final class TaskTableViewCell: UITableViewCell {
+  weak var delegate: TaskTableViewCellDelegate?
 
   private let circleButton: UIButton = {
     let button = UIButton()
-    button.layer.borderWidth = 2
     button.layer.borderColor = UIColor(resource: .customYellow).cgColor
-    button.layer.cornerRadius = 15
     return button
   }()
 
@@ -223,7 +235,6 @@ final class TaskTableViewCell: UITableViewCell {
     contentView.addSubview(descriptionLabel)
     contentView.addSubview(dateLabel)
 
-    // Layout constraints for the circle and labels
     circleButton.translatesAutoresizingMaskIntoConstraints = false
     taskNameLabel.translatesAutoresizingMaskIntoConstraints = false
     descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -255,28 +266,36 @@ final class TaskTableViewCell: UITableViewCell {
   }
 
   // MARK: - Configure
-  func configure(with task: TaskItem, toggleCompletionAction: @escaping () -> Void) {
+  func configure(with task: TaskItem) {
     taskNameLabel.text = task.todo
     descriptionLabel.text = task.description ?? "No description available"
     dateLabel.text = task.createdAt != nil ? "\(task.createdAt!)" : "No date provided"
 
-    // Circle (checkbox) setup
-    //    circleButton.layer.borderColor = task.completed ? UIColor.green.cgColor : UIColor.gray.cgColor
     circleButton.addTarget(self, action: #selector(didTapCircleButton), for: .touchUpInside)
 
-    // Strike-through if task is completed
-    let attributeString: NSMutableAttributedString
     if task.completed {
-      attributeString = NSMutableAttributedString(string: task.todo)
-      attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
+      circleButton.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
     } else {
-      attributeString = NSMutableAttributedString(string: task.todo)
+      circleButton.setImage(UIImage(systemName: "circle"), for: .normal)
     }
-    taskNameLabel.attributedText = attributeString
+
+    // TODO: ачеркивание названия задачи, если выполнено
+//    let attributeString: NSMutableAttributedString
+//    if task.completed {
+//      attributeString = NSMutableAttributedString(string: task.todo)
+//      attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
+//    } else {
+//      attributeString = NSMutableAttributedString(string: task.todo)
+//    }
+//    taskNameLabel.attributedText = attributeString
+
+    let strokeColor = UIColor(resource: .customStroke)
+    taskNameLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)
+    descriptionLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)
+    dateLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)
   }
 
   @objc private func didTapCircleButton() {
-    // Action to toggle completion status (communicate with the controller/presenter)
-    //    toggleCompletionAction()
+    delegate?.didToggleCompletion(for: self)
   }
 }

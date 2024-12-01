@@ -7,10 +7,12 @@
 
 import Foundation
 
-typealias TaskCompletion = (Result<[TaskItem], Error>) -> Void
+typealias TasksCompletion = (Result<[TaskItem], Error>) -> Void
+typealias TaskCompletion = (Result<TaskItem, Error>) -> Void
 
 protocol TaskServiceProtocol {
-  func loadTaskItems(completion: @escaping TaskCompletion)
+  func loadTaskItems(completion: @escaping TasksCompletion)
+  func updateTaskItem(_ taskItem: TaskItem, completion: @escaping TaskCompletion)
 }
 
 final class TaskService {
@@ -22,7 +24,7 @@ final class TaskService {
 }
 
 extension TaskService: TaskServiceProtocol {
-  func loadTaskItems(completion: @escaping TaskCompletion) {
+  func loadTaskItems(completion: @escaping TasksCompletion) {
     storage.fetchAll { [self] result in
         switch result {
         case .success(let tasks):
@@ -53,7 +55,17 @@ extension TaskService: TaskServiceProtocol {
         }
     }
   }
-}
 
-private extension TaskService {
+  func updateTaskItem(_ taskItem: TaskItem, completion: @escaping TaskCompletion) {
+    storage.updateTaskItem(taskItem) { result in
+      switch result {
+      case .success(let task):
+        print("Added task item: \(task)")
+        completion(.success(task))
+      case .failure(let error):
+        print("Failed to add task item: \(error.localizedDescription)")
+        completion(.failure(error))
+      }
+    }
+  }
 }
