@@ -10,7 +10,7 @@ import Foundation
 typealias TaskCompletion = (Result<[TaskItem], Error>) -> Void
 
 protocol TaskServiceProtocol {
-  func loadPhoto(completion: @escaping TaskCompletion)
+  func loadTaskItems(completion: @escaping TaskCompletion)
 }
 
 final class TaskService {
@@ -23,7 +23,7 @@ final class TaskService {
 }
 
 extension TaskService: TaskServiceProtocol {
-  func loadPhoto(completion: @escaping TaskCompletion) {
+  func loadTaskItems(completion: @escaping TaskCompletion) {
     let request = TaskItemsRequest()
 
     networkClient.send(request: request, type: TodosResponse.self) { [weak self] result in

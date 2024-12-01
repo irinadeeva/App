@@ -17,14 +17,13 @@ final class TaskListInteractor: TaskListInteractorInput {
   weak var output: TaskListInteractorOutput?
 
   func fetchTasks() {
-    // Загружаем данные. Здесь можно подключить API вместо симуляции.
-    let tasks = [
-      TaskItem(id: 1, todo: "Do something nice for someone you care about", completed: false, userId: 152),
-      TaskItem(id: 2, todo: "Memorize a poem", completed: true, userId: 13),
-      TaskItem(id: 3, todo: "Watch a classic movie", completed: true, userId: 68)
-    ]
-
-    TaskService.shared.loadPhoto(completion: { _ in })
-    output?.didFetchTasks(tasks)
+    TaskService.shared.loadTaskItems { [weak self] result in
+      switch result {
+        case .success(let tasks):
+        self?.output?.didFetchTasks(tasks)
+      case .failure(let error):
+        self?.output?.didFailToFetchTasks(with: error)
+      }
+    }
   }
 }
