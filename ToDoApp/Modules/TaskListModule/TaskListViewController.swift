@@ -17,7 +17,9 @@ final class TaskListViewController: UIViewController {
   lazy var activityIndicator = UIActivityIndicatorView()
   private let searchController = UISearchController(searchResultsController: nil)
   private let tableView = UITableView()
+  private var filteredTasks: [TaskItem] = []
   private var tasks: [TaskItem] = []
+
 
   // MARK: - View lifecycle
   override func viewDidLoad() {
@@ -50,9 +52,10 @@ private extension TaskListViewController {
     navigationBar.scrollEdgeAppearance = appearance
     navigationBar.compactAppearance = appearance
 
-    searchController.obscuresBackgroundDuringPresentation = false
+//    searchController.obscuresBackgroundDuringPresentation = false
     searchController.searchBar.tintColor = .white
     searchController.searchBar.placeholder = "Search Tasks"
+    searchController.searchResultsUpdater = self
     navigationItem.searchController = searchController
 //    // Customizing the search bar's background color
 //    let searchBarAppearance = UISearchBar
@@ -105,6 +108,7 @@ private extension TaskListViewController {
     tableView.dataSource = self
     tableView.delegate = self
     tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: "TaskCell")
+    tableView.backgroundColor = UIColor(resource: .customBlack)
 
     activityIndicator.translatesAutoresizingMaskIntoConstraints = false
 
@@ -121,8 +125,9 @@ private extension TaskListViewController {
 
   func updateTabBarItem() {
     if let tabBarController = tabBarController {
-      let taskCount = tasks.count
-      tabBarController.tabBar.items?[0].title = "\(taskCount) tasks"
+      let taskCount = filteredTasks.count
+      let taskCountText = taskCount == 1 ? "1 task" : "\(taskCount) tasks"
+      tabBarController.tabBar.items?[0].title = taskCountText
     }
   }
 
@@ -135,6 +140,7 @@ private extension TaskListViewController {
 // MARK: - TaskListViewProtocol
 extension TaskListViewController: TaskListViewProtocol {
   func showTasks(_ tasks: [TaskItem]) {
+    self.filteredTasks = tasks
     self.tasks = tasks
     tableView.reloadData()
     updateTabBarItem()
@@ -143,13 +149,13 @@ extension TaskListViewController: TaskListViewProtocol {
 
 extension TaskListViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    tasks.count
+    filteredTasks.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as! TaskTableViewCell
 
-    let task = tasks[indexPath.row]
+    let task = filteredTasks[indexPath.row]
 
     cell.configure(with: task){}
     return cell
@@ -158,12 +164,18 @@ extension TaskListViewController: UITableViewDataSource {
 
 extension TaskListViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let task = tasks[indexPath.row]
+    let task = filteredTasks[indexPath.row]
     presenter?.didSelectTask(task)
   }
 }
 
+extension TaskListViewController: UISearchResultsUpdating {
+  func updateSearchResults(for searchController: UISearchController) {
+    guard let searchText = searchController.searchBar.text, !searchText.isEmpty else {}
 
+    //TODO: do search bar
+  }
+}
 
 
 
