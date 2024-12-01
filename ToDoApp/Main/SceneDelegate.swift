@@ -15,10 +15,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     let window = UIWindow(windowScene: windowScene)
-        let navigationController = UINavigationController(rootViewController: TaskListModuleBuilder.build())
-        window.rootViewController = navigationController
-        self.window = window
-        window.makeKeyAndVisible()
+    let tabBarController = UITabBarController()
+    let navigationController = UINavigationController(rootViewController: TaskListModuleBuilder.build())
+
+    tabBarController.viewControllers = [navigationController]
+
+    window.rootViewController = tabBarController
+    self.window = window
+    window.makeKeyAndVisible()
   }
 
   func sceneDidEnterBackground(_ scene: UIScene) {

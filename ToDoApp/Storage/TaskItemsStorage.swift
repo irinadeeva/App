@@ -199,21 +199,6 @@ final class TaskItemsStorage {
     return TaskItem(id: id, todo: name, completed: completed, description: description, createdAt: date)
   }
 
-  //  private func predicateFetchById(_ taskId: UUID) -> ToDoItem? {
-  //    let request = ToDoItem.fetchRequest()
-  //    request.returnsObjectsAsFaults = false
-  //
-  //    request.predicate = NSPredicate(format: "id == %@", taskId.uuidString)
-  //    request.fetchLimit = 1
-  //
-  //    do {
-  //      let results = try context.fetch(request)
-  //      return results.first
-  //    } catch {
-  //      return nil //TODO: handle error
-  //    }
-  //  }
-
   private func predicateFetchById(_ taskId: UUID) throws -> ToDoItem? {
     let request = ToDoItem.fetchRequest()
     request.returnsObjectsAsFaults = false
@@ -228,6 +213,4 @@ final class TaskItemsStorage {
       throw TaskStoreError.fetchFailed(error)
     }
   }
-
-
 }

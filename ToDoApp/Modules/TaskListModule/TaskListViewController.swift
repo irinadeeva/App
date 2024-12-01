@@ -11,31 +11,97 @@ protocol TaskListViewProtocol: AnyObject, ErrorView, LoadingView {
 }
 
 final class TaskListViewController: UIViewController {
-  
+
   // MARK: - Public
   var presenter: TaskListPresenterProtocol?
   lazy var activityIndicator = UIActivityIndicatorView()
-
+  private let searchController = UISearchController(searchResultsController: nil)
   private let tableView = UITableView()
   private var tasks: [TaskItem] = []
-  
+
   // MARK: - View lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    view.backgroundColor = UIColor(resource: .customBlack)
+    setup()
 
-    setupTableView()
     presenter?.viewDidLoad()
   }
 }
 
 // MARK: - Private functions
 private extension TaskListViewController {
-  func  setupTableView() {
+  func  setup() {
+    view.backgroundColor = UIColor(resource: .customBlack)
+    title = "Task List"
+    guard let navigationBar = navigationController?.navigationBar else { return }
+    navigationBar.prefersLargeTitles = true
+
+    let appearance = UINavigationBarAppearance()
+    appearance.backgroundColor = UIColor(resource: .customBlack)
+    appearance.titleTextAttributes = [
+      .foregroundColor: UIColor(resource: .customWhite)
+    ]
+    appearance.largeTitleTextAttributes = [
+      .foregroundColor: UIColor(resource: .customWhite)
+    ]
+
+    navigationBar.standardAppearance = appearance
+    navigationBar.scrollEdgeAppearance = appearance
+    navigationBar.compactAppearance = appearance
+
+    searchController.obscuresBackgroundDuringPresentation = false
+    searchController.searchBar.tintColor = .white
+    searchController.searchBar.placeholder = "Search Tasks"
+    navigationItem.searchController = searchController
+//    // Customizing the search bar's background color
+//    let searchBarAppearance = UISearchBar
+//    searchBarAppearance.backgroundColor = UIColor(resource: .customGrey) // Custom color here
+//
+//    // Apply appearance
+//    searchController.searchBar.standardAppearance = searchBarAppearance
+//    searchController.searchBar.scrollEdgeAppearance = searchBarAppearance
+
+
+
+    if let tabBarController = tabBarController {
+      //      let editButton = UIBarButtonItem(
+      //        image: UIImage(systemName: "square.and.pencil"),
+      //        style: .plain,
+      //        target: self,
+      //        action: #selector(didTapEditButton)
+      //      )
+      //      tabBarController.navigationItem.rightBarButtonItem = editButton
+
+      //      let editButton = UIBarButtonItem(
+      //                     image: UIImage(systemName: "square.and.pencil"),
+      //                     style: .plain,
+      //                     target: self,
+      //                     action: #selector(didTapEditButton)
+      //                 )
+      //
+      //                 // Устанавливаем кнопку на TabBar в правом нижнем углу
+      //      tabBarController.tabBar.items?[2].
+      //                 let tabBarButton = tabBarController.tabBar.items?[2]
+      //                 tabBarButton?.isEnabled = true
+      ////                 tabBarButton?.action = #selector(didTapEditButton)
+
+      let tabBarAppearance = UITabBarAppearance()
+      tabBarAppearance.configureWithOpaqueBackground()
+      tabBarAppearance.backgroundColor = UIColor(resource: .customGrey)// Устанавливаем кастомный цвет фона
+
+      // Применяем стили для всех элементов TabBar
+      tabBarController.tabBar.standardAppearance = tabBarAppearance
+      tabBarController.tabBar.scrollEdgeAppearance = tabBarAppearance
+
+      // Обновляем цвет текста вкладок, если нужно
+      tabBarController.tabBar.tintColor = UIColor(resource: .customWhite)// Цвет выбранных элементов
+      tabBarController.tabBar.unselectedItemTintColor = .lightGray // Цвет невыбранных элементов
+    }
+
     view.addSubview(tableView)
     view.addSubview(activityIndicator)
-    tableView.frame = view.bounds
+    tableView.translatesAutoresizingMaskIntoConstraints = false
     tableView.dataSource = self
     tableView.delegate = self
     tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: "TaskCell")
@@ -43,9 +109,26 @@ private extension TaskListViewController {
     activityIndicator.translatesAutoresizingMaskIntoConstraints = false
 
     NSLayoutConstraint.activate([
+      tableView.topAnchor.constraint(equalTo: view.topAnchor),
+      tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
       activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
       activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
     ])
+  }
+
+  func updateTabBarItem() {
+    if let tabBarController = tabBarController {
+      let taskCount = tasks.count
+      tabBarController.tabBar.items?[0].title = "\(taskCount) tasks"
+    }
+  }
+
+  @objc func didTapEditButton() {
+    //TODO: open new
+    print("Edit button tapped")
   }
 }
 
@@ -54,6 +137,7 @@ extension TaskListViewController: TaskListViewProtocol {
   func showTasks(_ tasks: [TaskItem]) {
     self.tasks = tasks
     tableView.reloadData()
+    updateTabBarItem()
   }
 }
 
@@ -61,7 +145,7 @@ extension TaskListViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     tasks.count
   }
-  
+
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as! TaskTableViewCell
 
@@ -165,7 +249,7 @@ final class TaskTableViewCell: UITableViewCell {
     dateLabel.text = task.createdAt != nil ? "\(task.createdAt!)" : "No date provided"
 
     // Circle (checkbox) setup
-//    circleButton.layer.borderColor = task.completed ? UIColor.green.cgColor : UIColor.gray.cgColor
+    //    circleButton.layer.borderColor = task.completed ? UIColor.green.cgColor : UIColor.gray.cgColor
     circleButton.addTarget(self, action: #selector(didTapCircleButton), for: .touchUpInside)
 
     // Strike-through if task is completed
@@ -181,6 +265,6 @@ final class TaskTableViewCell: UITableViewCell {
 
   @objc private func didTapCircleButton() {
     // Action to toggle completion status (communicate with the controller/presenter)
-//    toggleCompletionAction()
+    //    toggleCompletionAction()
   }
 }
