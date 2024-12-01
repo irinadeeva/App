@@ -8,12 +8,27 @@
 import UIKit
 import CoreData
 
-enum TaskStoreError: Error {
+enum TaskStoreError: Error, ErrorWithMessage {
   case decodingErrorInvalidId
   case decodingErrorInvalidName
   case entityNotFound
   case saveFailed
   case fetchFailed(Error)
+
+  var message: String {
+          switch self {
+          case .decodingErrorInvalidId:
+              return "Error decoding task: invalid ID."
+          case .decodingErrorInvalidName:
+              return "Error decoding task: invalid name."
+          case .entityNotFound:
+              return "The requested task was not found."
+          case .saveFailed:
+              return "Failed to save changes. Please try again."
+          case .fetchFailed(let fetchError):
+              return "Failed to fetch tasks: \(fetchError.localizedDescription)"
+          }
+      }
 }
 
 final class TaskItemsStorage {

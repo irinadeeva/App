@@ -50,19 +50,9 @@ final class TaskListPresenter {
   private func makeErrorModel(_ error: Error) -> ErrorModel {
     let message: String
 
-    switch error {
-    case let networkError as NetworkClientError:
-      switch networkError {
-      case .httpStatusCode(let code):
-        message = "Network error: HTTP status \(code)"
-      case .urlRequestError(let urlError):
-        message = "Request error: \(urlError.localizedDescription)"
-      case .urlSessionError:
-        message = "Connection error: please check your internet"
-      case .parsingError:
-        message = "Data parsing error: please try again"
-      }
-    default:
+    if let errorWithMessage = error as? ErrorWithMessage {
+      message = errorWithMessage.message
+    } else {
       message = "An unknown error occurred. Please try again later."
     }
 
@@ -71,9 +61,6 @@ final class TaskListPresenter {
                       actionText: actionText) { [weak self] in
       self?.state = .loading
     }
-
-
-
   }
 }
 

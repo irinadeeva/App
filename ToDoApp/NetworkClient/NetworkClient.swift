@@ -1,10 +1,23 @@
 import Foundation
 
-enum NetworkClientError: Error {
+enum NetworkClientError: Error, ErrorWithMessage {
   case httpStatusCode(Int)
   case urlRequestError(Error)
   case urlSessionError
   case parsingError
+  
+  var message: String {
+    switch self {
+    case .httpStatusCode(let code):
+      return "Network error: HTTP status \(code)"
+    case .urlRequestError(let urlError):
+      return "Request error: \(urlError.localizedDescription)"
+    case .urlSessionError:
+      return "Connection error: please check your internet"
+    case .parsingError:
+      return "Data parsing error: please try again"
+    }
+  }
 }
 
 protocol NetworkClient {

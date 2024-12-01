@@ -23,10 +23,6 @@ final class TaskService {
 
 extension TaskService: TaskServiceProtocol {
   func loadTaskItems(completion: @escaping TaskCompletion) {
-//
-//    //TODO: do a completion with error
-//    let taskItems = storage.fetchAll()
-
     storage.fetchAll { [self] result in
         switch result {
         case .success(let tasks):
@@ -43,7 +39,6 @@ extension TaskService: TaskServiceProtocol {
                   self?.storage.addTaskItem(taskItem)
                 }
 
-                print(data)
                 completion(.success(taskItems))
               case .failure(let error):
                 completion(.failure(error))
