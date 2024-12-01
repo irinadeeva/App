@@ -37,7 +37,11 @@ final class TaskItemsStorage {
   func addTaskItem(_ taskItem: TaskItem) {
     let task = ToDoItem(context: context)
 
-//    task.id = 
+//    task.id = taskItem.id
+    task.name = taskItem.todo
+    task.itemDescription = taskItem.description
+    task.date = taskItem.createdAt
+    task.completed = taskItem.completed
 
   }
 

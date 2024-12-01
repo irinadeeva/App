@@ -30,7 +30,7 @@ extension TaskService: TaskServiceProtocol {
       switch result {
       case .success(let data):
         // self?.storage.savePhoto(validPhoto)a
-        let taskItems = data.todos
+        let taskItems = data.todos.toTaskItems()
         print(data)
         completion(.success(taskItems))
       case .failure(let error):

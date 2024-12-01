@@ -6,7 +6,7 @@
 
 import UIKit
 
-protocol TaskListViewProtocol: AnyObject {
+protocol TaskListViewProtocol: AnyObject, ErrorView, LoadingView {
   func showTasks(_ tasks: [TaskItem])
 }
 
@@ -14,8 +14,9 @@ final class TaskListViewController: UIViewController {
   
   // MARK: - Public
   var presenter: TaskListPresenterProtocol?
+  lazy var activityIndicator = UIActivityIndicatorView()
+
   private let tableView = UITableView()
-  
   private var tasks: [TaskItem] = []
   
   // MARK: - View lifecycle
@@ -30,10 +31,18 @@ final class TaskListViewController: UIViewController {
 private extension TaskListViewController {
   func  setupTableView() {
     view.addSubview(tableView)
+    view.addSubview(activityIndicator)
     tableView.frame = view.bounds
     tableView.dataSource = self
     tableView.delegate = self
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+
+    activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+
+    NSLayoutConstraint.activate([
+      activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+    ])
   }
 }
 
@@ -43,7 +52,6 @@ extension TaskListViewController: TaskListViewProtocol {
     self.tasks = tasks
     tableView.reloadData()
   }
-  
 }
 
 extension TaskListViewController: UITableViewDataSource {

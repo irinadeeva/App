@@ -8,8 +8,11 @@
 import Foundation
 
 struct TodosResponse: Codable {
-  let todos: [TaskItem]
-//    let total: Int
-//    let skip: Int
-//    let limit: Int
+  let todos: [TaskItemResponse]
+}
+
+extension Array where Element == TaskItemResponse {
+    func toTaskItems(description: String? = nil, createdAt: Date? = nil) -> [TaskItem] {
+        return self.map { $0.toTaskItem(description: description, createdAt: createdAt) }
+    }
 }

@@ -6,12 +6,14 @@
 
 import UIKit
 
-protocol TaskDetailViewProtocol: AnyObject {
+protocol TaskDetailViewProtocol: AnyObject, ErrorView, LoadingView {
 }
 
 final class TaskDetailViewController: UIViewController {
   // MARK: - Public
   var presenter: TaskDetailPresenterProtocol?
+
+  lazy var activityIndicator = UIActivityIndicatorView()
 
   private let task: TaskItem
 
