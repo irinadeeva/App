@@ -15,34 +15,50 @@ protocol TaskServiceProtocol {
 
 final class TaskService {
   static let shared = TaskService()
-
   private let networkClient = DefaultNetworkClient()
-  //  private let storage = TaskStorage()
+  private let storage = TaskItemsStorage()
 
   private init() {}
 }
 
 extension TaskService: TaskServiceProtocol {
   func loadTaskItems(completion: @escaping TaskCompletion) {
-    let request = TaskItemsRequest()
+//
+//    //TODO: do a completion with error
+//    let taskItems = storage.fetchAll()
 
-    networkClient.send(request: request, type: TodosResponse.self) { [weak self] result in
-      switch result {
-      case .success(let data):
-        // self?.storage.savePhoto(validPhoto)a
-        let taskItems = data.todos.toTaskItems()
-        print(data)
-        completion(.success(taskItems))
-      case .failure(let error):
-        completion(.failure(error))
-      }
+    storage.fetchAll { [self] result in
+        switch result {
+        case .success(let tasks):
+            print("Fetched \(tasks.count) tasks.")
+          if tasks.isEmpty {
+            let request = TaskItemsRequest()
+
+            networkClient.send(request: request, type: TodosResponse.self) { [weak self] result in
+              switch result {
+              case .success(let data):
+                let taskItems = data.todos.toTaskItems()
+
+                taskItems.forEach { taskItem in
+                  self?.storage.addTaskItem(taskItem)
+                }
+
+                print(data)
+                completion(.success(taskItems))
+              case .failure(let error):
+                completion(.failure(error))
+              }
+            }
+          } else {
+            completion(.success(tasks))
+          }
+        case .failure(let error):
+            print("Failed to fetch tasks: \(error.localizedDescription)")
+          completion(.failure(error))
+        }
     }
   }
 }
 
-struct TaskItemsRequest: NetworkRequest {
-  var endpoint = "\(RequestConstants.baseURL)"
-
-  var httpMethod: HttpMethod { .get }
+private extension TaskService {
 }
-

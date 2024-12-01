@@ -8,7 +8,7 @@
 import Foundation
 
 struct TaskItem: Codable {
-  let id: Int
+  let id: UUID
   let todo: String
   let completed: Bool
   let description: String?

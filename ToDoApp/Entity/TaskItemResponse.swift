@@ -8,7 +8,6 @@
 import Foundation
 
 struct TaskItemResponse: Codable {
-  let id: Int
   let todo: String
   let completed: Bool
 }
@@ -16,7 +15,7 @@ struct TaskItemResponse: Codable {
 extension TaskItemResponse {
   func toTaskItem(description: String? = nil, createdAt: Date? = nil) -> TaskItem {
     TaskItem(
-      id: self.id,
+      id: UUID(),
       todo: self.todo,
       completed: self.completed,
       description: description,
