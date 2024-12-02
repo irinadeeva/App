@@ -8,9 +8,9 @@ import UIKit
 
 final class TaskDetailModuleBuilder {
   static func build(for task: TaskItem) -> TaskDetailViewController {
-    let view = TaskDetailViewController(task: task)
+    let view = TaskDetailViewController()
     let interactor = TaskDetailInteractor()
-    let presenter = TaskDetailPresenter()
+    let presenter = TaskDetailPresenter(task: task)
     let router = TaskDetailRouter()
     
     view.presenter = presenter

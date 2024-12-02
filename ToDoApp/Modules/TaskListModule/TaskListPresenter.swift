@@ -7,7 +7,7 @@
 import Foundation
 
 enum TaskListState {
-  case initial, loading, data([TaskItem]), update(TaskItem), delete(TaskItem),failed(Error)
+  case initial, loading, data([TaskItem]), update(TaskItem), delete(TaskItem), failed(Error)
 }
 
 protocol TaskListPresenterProtocol: AnyObject {
