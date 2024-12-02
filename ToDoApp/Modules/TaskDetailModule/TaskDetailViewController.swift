@@ -58,11 +58,11 @@ final class TaskDetailViewController: UIViewController {
 
     guard let taskItem else { return }
     let updatedTask = TaskItem(
-      id: taskItem.id, // Используем текущий ID или создаём новый
+      id: taskItem.id,
       todo: titleTextField.text ?? "",
-      completed: taskItem.completed,       // Текст заголовка
-      description: descriptionTextView.text,// Текст описания
-      createdAt: taskItem.createdAt        // Дата создания остаётся неизменной
+      completed: taskItem.completed,
+      description: descriptionTextView.text,
+      createdAt: taskItem.createdAt
     )
 
     presenter?.viewWillDisappear(updatedTask)
@@ -78,6 +78,9 @@ private extension TaskDetailViewController {
     view.addSubview(dateLabel)
     view.addSubview(descriptionTextView)
     view.addSubview(activityIndicator)
+
+    titleTextField.delegate = self
+    descriptionTextView.delegate = self
 
     titleTextField.translatesAutoresizingMaskIntoConstraints = false
     dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -117,5 +120,23 @@ extension TaskDetailViewController: TaskDetailViewProtocol {
     }
 
     descriptionTextView.text = task.description ?? ""
+  }
+}
+
+// MARK: - UITextFieldDelegate
+extension TaskDetailViewController: UITextFieldDelegate {
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    textField.resignFirstResponder()
+    return true
+  }
+}
+
+extension TaskDetailViewController: UITextViewDelegate {
+  func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    if text == "\n" {
+      textView.resignFirstResponder()
+      return false
+    }
+    return true
   }
 }
