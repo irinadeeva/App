@@ -17,6 +17,7 @@ protocol TaskListPresenterProtocol: AnyObject {
   func didSelectTask(_ task: TaskItem)
   func didTaskCompleted(_ task: TaskItem)
   func didTaskDeleted(_ task: TaskItem)
+  func didTapShareCell(_ task: TaskItem)
 }
 
 final class TaskListPresenter {
@@ -110,7 +111,10 @@ extension TaskListPresenter: TaskListPresenterProtocol {
   }
 
   func didTaskCompleted(_ task: TaskItem) {
-    state = .update(task)
+    var updateTask = task
+    updateTask.completed.toggle()
+
+    state = .update(updateTask)
   }
 
   func didTaskDeleted(_ task: TaskItem) {
@@ -119,5 +123,9 @@ extension TaskListPresenter: TaskListPresenterProtocol {
 
   func addNewTask() {
     router?.navigateToAddNewTask()
+  }
+
+  func didTapShareCell(_ task: TaskItem) {
+    router?.shareTask(task)
   }
 }

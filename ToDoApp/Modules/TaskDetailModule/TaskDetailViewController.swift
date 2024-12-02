@@ -113,9 +113,9 @@ extension TaskDetailViewController: TaskDetailViewProtocol {
     if let createdAt = task.createdAt {
         dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
     } else {
-        dateLabel.text = DateFormatter.mediumDateFormatter.string(from: Date())
+        dateLabel.text = ""
     }
 
-    descriptionTextView.text = task.description ?? "No Description"
+    descriptionTextView.text = task.description ?? ""
   }
 }

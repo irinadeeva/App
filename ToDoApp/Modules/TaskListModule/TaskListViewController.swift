@@ -185,24 +185,15 @@ extension TaskListViewController: TaskTableViewCellDelegate {
   }
 
   func didTapShareCell(_ cell: TaskTableViewCell) {
-    //TODO: перенести в роутер ?
     guard let indexPath = tableView.indexPath(for: cell) else { return }
     let task = filteredTasks[indexPath.row]
 
-    let shareText = task.todo // Текст задачи
-    let shareDescription = task.description ?? "No description available"
-    let shareItems: [Any] = ["Check out this task:", shareText, shareDescription]
-
-    let activityVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
-
-    self.present(activityVC, animated: true, completion: nil)
+    presenter?.didTapShareCell(task)
   }
 
   func didToggleCompletion(for cell: TaskTableViewCell) {
     guard let indexPath = tableView.indexPath(for: cell) else { return }
-    var task = filteredTasks[indexPath.row]
-    //TODO: перенести в presenter toggle()
-    task.completed.toggle()
+    let task = filteredTasks[indexPath.row]
 
     presenter?.didTaskCompleted(task)
   }
@@ -299,12 +290,12 @@ final class TaskTableViewCell: UITableViewCell {
   // MARK: - Configure
   func configure(with task: TaskItem) {
     taskNameLabel.text = task.todo
-    descriptionLabel.text = task.description ?? "No description available"
+    descriptionLabel.text = task.description ?? ""
 
     if let createdAt = task.createdAt {
         dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
     } else {
-        dateLabel.text = "No date provided"
+        dateLabel.text = ""
     }
 
     circleButton.addTarget(self, action: #selector(didTapCircleButton), for: .touchUpInside)
@@ -315,16 +306,6 @@ final class TaskTableViewCell: UITableViewCell {
     } else {
       circleButton.setImage(UIImage(systemName: "circle", withConfiguration: imageConfiguration), for: .normal)
     }
-
-    // TODO: ачеркивание названия задачи, если выполнено
-    //        let attributeString: NSMutableAttributedString
-    //        if task.completed {
-    //          attributeString = NSMutableAttributedString(string: task.todo)
-    //          attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
-    //        } else {
-    //          attributeString = NSMutableAttributedString(string: task.todo)
-    //        }
-    //        taskNameLabel.attributedText = attributeString
 
     let strokeColor = UIColor(resource: .customStroke)
     taskNameLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)
