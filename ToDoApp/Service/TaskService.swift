@@ -31,7 +31,6 @@ extension TaskService: TaskServiceProtocol {
     storage.fetchAll { [self] result in
         switch result {
         case .success(let tasks):
-            print("Fetched \(tasks.count) tasks.")
           if tasks.isEmpty {
             let request = TaskItemsRequest()
 
@@ -53,7 +52,6 @@ extension TaskService: TaskServiceProtocol {
             completion(.success(tasks))
           }
         case .failure(let error):
-            print("Failed to fetch tasks: \(error.localizedDescription)")
           completion(.failure(error))
         }
     }
@@ -63,10 +61,8 @@ extension TaskService: TaskServiceProtocol {
     storage.updateTaskItem(taskItem) { result in
       switch result {
       case .success(let task):
-        print("Added task item: \(task)")
         completion(.success(task))
       case .failure(let error):
-        print("Failed to add task item: \(error.localizedDescription)")
         completion(.failure(error))
       }
     }
@@ -76,10 +72,9 @@ extension TaskService: TaskServiceProtocol {
     storage.addTaskItem(taskItem) { result in
       switch result {
       case .success(let task):
-        print("Added task item: \(task)")
         completion(.success(task))
       case .failure(let error):
-        print("Failed to add task item: \(error.localizedDescription)")
+        completion(.failure(error))
       }
     }
   }
@@ -88,10 +83,9 @@ extension TaskService: TaskServiceProtocol {
     storage.deleteTaskItem(taskItem) { result in
       switch result {
       case .success(let id):
-        print("Deleted task item: \(taskItem)")
         completion(.success(id))
       case .failure(let error):
-        print("Failed to delete task item: \(error.localizedDescription)")
+        completion(.failure(error))
       }
     }
   }

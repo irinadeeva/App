@@ -48,20 +48,6 @@ final class TaskItemsStorage {
     self.context = context
   }
 
-  func fetchAll() -> [TaskItem] {
-    let request = NSFetchRequest<ToDoItem>(entityName: "ToDoItem")
-
-    do {
-      let todoItems = try context.fetch(request)
-      let taskItems = try todoItems.map { try self.taskItem(from: $0) }
-      print("Fetched task items: \(taskItems)")
-      return taskItems
-    } catch {
-      print("Error fetching task items: \(error)")
-      return []
-    }
-  }
-
   func fetchAll(completion: @escaping (Result<[TaskItem], TaskStoreError>) -> Void) {
     let request = NSFetchRequest<ToDoItem>(entityName: "ToDoItem")
 
@@ -72,17 +58,6 @@ final class TaskItemsStorage {
     } catch {
       completion(.failure(.fetchFailed(error)))
     }
-  }
-
-  func deleteTaskItem(_ taskItem: TaskItem) throws {
-    guard let todoItem = try predicateFetchById(taskItem.id) else {
-      //TODO: error handler
-      return
-    }
-
-    context.delete(todoItem)
-
-    try? context.save()
   }
 
   func deleteTaskItem(_ taskItem: TaskItem, completion: @escaping (Result<UUID, TaskStoreError>) -> Void) {
@@ -131,24 +106,6 @@ final class TaskItemsStorage {
       }
   }
 
-  func updateTaskItem(_ taskItem: TaskItem) throws {
-    guard let todoItem = try predicateFetchById(taskItem.id) else {
-      //TODO: error handler
-      return
-    }
-
-    todoItem.id = taskItem.id
-    todoItem.name = taskItem.todo
-    todoItem.itemDescription = taskItem.description
-    todoItem.date = taskItem.createdAt
-    todoItem.completed = taskItem.completed
-
-    do {
-      try context.save()
-    } catch {
-      context.rollback()
-    }
-  }
 
   func addTaskItem(_ taskItem: TaskItem) {
     let todoItem = ToDoItem(context: context)
@@ -167,7 +124,6 @@ final class TaskItemsStorage {
   }
 
   func addTaskItem(_ taskItem: TaskItem, completion: @escaping (Result<TaskItem, TaskStoreError>) -> Void) {
-    print("Saving task item: \(taskItem)")
       let todoItem = ToDoItem(context: context)
 
       todoItem.id = taskItem.id

@@ -18,14 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let tabBarController = UITabBarController()
     let navigationController = UINavigationController(rootViewController: TaskListModuleBuilder.build())
 
-    let editButton = UIBarButtonItem(
-            barButtonSystemItem: .add,
-            target: self,
-            action: #selector(editButtonTapped)
-        )
-    tabBarController.navigationItem.rightBarButtonItem = editButton
-        navigationController.topViewController?.navigationItem.rightBarButtonItem = editButton
-
     tabBarController.viewControllers = [navigationController]
 
     window.rootViewController = tabBarController
@@ -35,11 +27,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func sceneDidEnterBackground(_ scene: UIScene) {
     (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
-  }
-
-  @objc func editButtonTapped() {
-      // Ваш код для обработки нажатия кнопки
-      print("Edit button tapped")
   }
 }
 
