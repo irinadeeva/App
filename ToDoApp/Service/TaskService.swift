@@ -14,6 +14,7 @@ typealias TaskIdCompletion = (Result<UUID, Error>) -> Void
 protocol TaskServiceProtocol {
   func loadTaskItems(completion: @escaping TasksCompletion)
   func updateTaskItem(_ taskItem: TaskItem, completion: @escaping TaskCompletion)
+  func addTaskItem(_ taskItem: TaskItem, completion: @escaping TaskCompletion)
   func deleteTaskItem(_ taskItem: TaskItem, completion: @escaping TaskIdCompletion)
 }
 
@@ -67,6 +68,18 @@ extension TaskService: TaskServiceProtocol {
       case .failure(let error):
         print("Failed to add task item: \(error.localizedDescription)")
         completion(.failure(error))
+      }
+    }
+  }
+
+  func addTaskItem(_ taskItem: TaskItem, completion: @escaping TaskCompletion) {
+    storage.addTaskItem(taskItem) { result in
+      switch result {
+      case .success(let task):
+        print("Added task item: \(task)")
+        completion(.success(task))
+      case .failure(let error):
+        print("Failed to add task item: \(error.localizedDescription)")
       }
     }
   }

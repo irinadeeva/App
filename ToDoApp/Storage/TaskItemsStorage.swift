@@ -167,6 +167,7 @@ final class TaskItemsStorage {
   }
 
   func addTaskItem(_ taskItem: TaskItem, completion: @escaping (Result<TaskItem, TaskStoreError>) -> Void) {
+    print("Saving task item: \(taskItem)")
       let todoItem = ToDoItem(context: context)
 
       todoItem.id = taskItem.id
@@ -174,6 +175,7 @@ final class TaskItemsStorage {
       todoItem.itemDescription = taskItem.description
       todoItem.date = taskItem.createdAt
       todoItem.completed = taskItem.completed
+
 
       do {
           try context.save()

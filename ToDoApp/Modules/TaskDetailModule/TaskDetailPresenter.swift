@@ -7,11 +7,12 @@
 import Foundation
 
 enum TaskDetailState {
-  case initial, loading, data(TaskItem), update(TaskItem), delete(TaskItem), failed(Error)
+  case initial, loading, data(TaskItem), update(TaskItem), create(TaskItem), failed(Error)
 }
 
 protocol TaskDetailPresenterProtocol: AnyObject {
   func viewDidLoad()
+  func viewWillDisappear(_ task: TaskItem)
 }
 
 final class TaskDetailPresenter {
@@ -19,14 +20,15 @@ final class TaskDetailPresenter {
   var router: TaskDetailRouterProtocol?
   var interactor: TaskDetailInteractorInput?
 
-  private var task: TaskItem
+  private var task: TaskItem?
+  private var isNewTask = false
   private var state: TaskDetailState = .initial {
     didSet {
       stateDidChanged()
     }
   }
 
-  init(task: TaskItem) {
+  init(task: TaskItem? = nil) {
     self.task = task
   }
 
@@ -47,10 +49,10 @@ final class TaskDetailPresenter {
       view?.showError(errorModel)
     case .update(let taskItem):
       view?.showLoadingAndBlockUI()
-//      interactor?.updateTaskItem(taskItem)
-    case .delete(let taskItem):
+      interactor?.updateTaskItem(taskItem)
+    case .create(let taskItem):
       view?.showLoadingAndBlockUI()
-//      interactor?.deleteTaskItem(taskItem)
+      interactor?.addNewTask(taskItem)
     }
   }
 
@@ -72,12 +74,35 @@ final class TaskDetailPresenter {
 }
 
 extension TaskDetailPresenter: TaskDetailInteractorOutput {
+  func didFetchTask(_ task: TaskItem) {
+    self.task = task
+
+    state = .data(task)
+  }
   
+  func didFailToFetchTasks(with error: any Error) {
+    state = .failed(error)
+  }
 }
 
 extension TaskDetailPresenter: TaskDetailPresenterProtocol {
   func viewDidLoad() {
-    state = .data(task)
+    if let task {
+      state = .data(task)
+    } else {
+      task = TaskItem(id: UUID(), todo: "New Task", completed: false, description: "", createdAt: Date())
+      isNewTask = true
+       guard let task else { return }
+      state = .data(task)
+    }
+  }
+
+  func viewWillDisappear(_ task: TaskItem) {
+    if isNewTask {
+      state = .create(task)
+    } else {
+      state = .update(task)
+    }
   }
 }
 

@@ -8,6 +8,7 @@ import UIKit
 
 protocol TaskListRouterProtocol {
   func navigateToTaskDetail(with task: TaskItem)
+  func navigateToAddNewTask()
 }
 
 final class TaskListRouter: TaskListRouterProtocol {
@@ -17,4 +18,10 @@ final class TaskListRouter: TaskListRouterProtocol {
     let detailsViewController = TaskDetailModuleBuilder.build(for: task)
     viewController?.navigationController?.pushViewController(detailsViewController, animated: true)
   }
+
+  func navigateToAddNewTask() {
+    let detailsViewController = TaskDetailModuleBuilder.build()
+    viewController?.navigationController?.pushViewController(detailsViewController, animated: true)
+  }
+
 }

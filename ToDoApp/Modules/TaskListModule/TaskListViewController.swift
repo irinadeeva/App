@@ -29,6 +29,12 @@ final class TaskListViewController: UIViewController {
 
     presenter?.viewDidLoad()
   }
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+
+    presenter?.viewWillAppear()
+  }
 }
 
 // MARK: - Private functions
@@ -52,6 +58,16 @@ private extension TaskListViewController {
     navigationBar.scrollEdgeAppearance = appearance
     navigationBar.compactAppearance = appearance
 
+
+    let addTaskButton  = UIBarButtonItem(
+      image: UIImage(systemName: "square.and.pencil"),
+      style: .plain,
+      target: self,
+      action: #selector(didTapAddTaskButton)
+    )
+
+    navigationController?.navigationBar.topItem?.rightBarButtonItem = addTaskButton
+
     //    searchController.obscuresBackgroundDuringPresentation = false
     searchController.searchBar.tintColor = .white
     searchController.searchBar.placeholder = "Search Tasks"
@@ -68,38 +84,15 @@ private extension TaskListViewController {
 
 
     if let tabBarController = tabBarController {
-      //      let editButton = UIBarButtonItem(
-      //        image: UIImage(systemName: "square.and.pencil"),
-      //        style: .plain,
-      //        target: self,
-      //        action: #selector(didTapEditButton)
-      //      )
-      //      tabBarController.navigationItem.rightBarButtonItem = editButton
-
-      //      let editButton = UIBarButtonItem(
-      //                     image: UIImage(systemName: "square.and.pencil"),
-      //                     style: .plain,
-      //                     target: self,
-      //                     action: #selector(didTapEditButton)
-      //                 )
-      //
-      //                 // Устанавливаем кнопку на TabBar в правом нижнем углу
-      //      tabBarController.tabBar.items?[2].
-      //                 let tabBarButton = tabBarController.tabBar.items?[2]
-      //                 tabBarButton?.isEnabled = true
-      ////                 tabBarButton?.action = #selector(didTapEditButton)
-
       let tabBarAppearance = UITabBarAppearance()
       tabBarAppearance.configureWithOpaqueBackground()
-      tabBarAppearance.backgroundColor = UIColor(resource: .customGrey)// Устанавливаем кастомный цвет фона
+      tabBarAppearance.backgroundColor = UIColor(resource: .customGrey)
 
-      // Применяем стили для всех элементов TabBar
       tabBarController.tabBar.standardAppearance = tabBarAppearance
       tabBarController.tabBar.scrollEdgeAppearance = tabBarAppearance
 
-      // Обновляем цвет текста вкладок, если нужно
-      tabBarController.tabBar.tintColor = UIColor(resource: .customWhite)// Цвет выбранных элементов
-      tabBarController.tabBar.unselectedItemTintColor = .lightGray // Цвет невыбранных элементов
+      tabBarController.tabBar.tintColor = UIColor(resource: .customWhite)
+      tabBarController.tabBar.unselectedItemTintColor = .lightGray
     }
 
     view.addSubview(tableView)
@@ -131,9 +124,8 @@ private extension TaskListViewController {
     }
   }
 
-  @objc func didTapEditButton() {
-    //TODO: open new
-    print("Edit button tapped")
+  @objc private func didTapAddTaskButton() {
+    presenter?.addNewTask()
   }
 }
 
@@ -193,7 +185,7 @@ extension TaskListViewController: TaskTableViewCellDelegate {
   }
 
   func didTapShareCell(_ cell: TaskTableViewCell) {
-//TODO: перенести в роутер ?
+    //TODO: перенести в роутер ?
     guard let indexPath = tableView.indexPath(for: cell) else { return }
     let task = filteredTasks[indexPath.row]
 
@@ -301,7 +293,7 @@ final class TaskTableViewCell: UITableViewCell {
   }
 
   override func prepareForReuse() {
-      super.prepareForReuse()
+    super.prepareForReuse()
   }
 
   // MARK: - Configure
@@ -320,14 +312,14 @@ final class TaskTableViewCell: UITableViewCell {
     }
 
     // TODO: ачеркивание названия задачи, если выполнено
-//        let attributeString: NSMutableAttributedString
-//        if task.completed {
-//          attributeString = NSMutableAttributedString(string: task.todo)
-//          attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
-//        } else {
-//          attributeString = NSMutableAttributedString(string: task.todo)
-//        }
-//        taskNameLabel.attributedText = attributeString
+    //        let attributeString: NSMutableAttributedString
+    //        if task.completed {
+    //          attributeString = NSMutableAttributedString(string: task.todo)
+    //          attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
+    //        } else {
+    //          attributeString = NSMutableAttributedString(string: task.todo)
+    //        }
+    //        taskNameLabel.attributedText = attributeString
 
     let strokeColor = UIColor(resource: .customStroke)
     taskNameLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)

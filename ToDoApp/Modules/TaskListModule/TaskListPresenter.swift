@@ -12,6 +12,8 @@ enum TaskListState {
 
 protocol TaskListPresenterProtocol: AnyObject {
   func viewDidLoad()
+  func viewWillAppear()
+  func addNewTask()
   func didSelectTask(_ task: TaskItem)
   func didTaskCompleted(_ task: TaskItem)
   func didTaskDeleted(_ task: TaskItem)
@@ -99,6 +101,10 @@ extension TaskListPresenter: TaskListPresenterProtocol {
     state = .loading
   }
 
+  func viewWillAppear(){
+    state = .loading
+  }
+
   func didSelectTask(_ task: TaskItem) {
     router?.navigateToTaskDetail(with: task)
   }
@@ -109,5 +115,9 @@ extension TaskListPresenter: TaskListPresenterProtocol {
 
   func didTaskDeleted(_ task: TaskItem) {
     state = .delete(task)
+  }
+
+  func addNewTask() {
+    router?.navigateToAddNewTask()
   }
 }
