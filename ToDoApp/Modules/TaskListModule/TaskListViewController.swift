@@ -68,19 +68,23 @@ private extension TaskListViewController {
 
     navigationController?.navigationBar.topItem?.rightBarButtonItem = addTaskButton
 
-    //    searchController.obscuresBackgroundDuringPresentation = false
-    searchController.searchBar.tintColor = .white
-    searchController.searchBar.placeholder = "Search Tasks"
     searchController.searchResultsUpdater = self
-    navigationItem.searchController = searchController
-    //    // Customizing the search bar's background color
-    //    let searchBarAppearance = UISearchBar
-    //    searchBarAppearance.backgroundColor = UIColor(resource: .customGrey) // Custom color here
-    //
-    //    // Apply appearance
-    //    searchController.searchBar.standardAppearance = searchBarAppearance
-    //    searchController.searchBar.scrollEdgeAppearance = searchBarAppearance
+    searchController.searchBar.tintColor = UIColor(resource: .customWhite)
+    searchController.searchBar.searchTextField.backgroundColor = UIColor(resource: .customGrey)
+    searchController.searchBar.searchTextField.textColor = .white
+    searchController.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(
+        string: "Search Tasks",
+        attributes: [
+          .foregroundColor: UIColor(resource: .customStroke)
+        ]
+    )
 
+    let searchBarAppearance = searchController.searchBar
+    searchBarAppearance.barTintColor = UIColor(resource: .customBlack)
+    searchBarAppearance.backgroundImage = UIImage()
+    searchBarAppearance.isTranslucent = false
+
+    navigationItem.searchController = searchController
 
 
     if let tabBarController = tabBarController {
@@ -164,9 +168,20 @@ extension TaskListViewController: UITableViewDelegate {
 
 extension TaskListViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    guard let searchText = searchController.searchBar.text, !searchText.isEmpty else { return }
+    guard let searchText = searchController.searchBar.text?.lowercased(), !searchText.isEmpty else {
+      filteredTasks = tasks
+      tableView.reloadData()
+      updateTabBarItem()
+      return
+    }
 
-    //TODO: do search bar
+    filteredTasks = tasks.filter { task in
+      task.todo.lowercased().contains(searchText) ||
+      (task.description?.lowercased().contains(searchText) ?? false)
+    }
+
+    tableView.reloadData()
+    updateTabBarItem()
   }
 }
 
@@ -293,9 +308,9 @@ final class TaskTableViewCell: UITableViewCell {
     descriptionLabel.text = task.description ?? ""
 
     if let createdAt = task.createdAt {
-        dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
+      dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
     } else {
-        dateLabel.text = ""
+      dateLabel.text = ""
     }
 
     circleButton.addTarget(self, action: #selector(didTapCircleButton), for: .touchUpInside)
