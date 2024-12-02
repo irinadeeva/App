@@ -38,7 +38,7 @@ final class TaskDetailPresenter {
       assertionFailure("can't move to initial state")
     case .loading:
       view?.showLoadingAndBlockUI()
-//      interactor?.fetchTasks()
+//      interactor?.fetchTask()
     case .data(let task):
       self.task = task
       view?.showTask(task)
