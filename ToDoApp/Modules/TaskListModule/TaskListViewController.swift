@@ -179,10 +179,28 @@ extension TaskListViewController: UISearchResultsUpdating {
 }
 
 extension TaskListViewController: TaskTableViewCellDelegate {
+  func didTapEditCell(_ cell: TaskTableViewCell) {
+    guard let indexPath = tableView.indexPath(for: cell) else { return }
+    let task = filteredTasks[indexPath.row]
+    presenter?.didSelectTask(task)
+  }
+
+  func didTapDeleteCell(_ cell: TaskTableViewCell) {
+    guard let indexPath = tableView.indexPath(for: cell) else { return }
+    let task = filteredTasks[indexPath.row]
+
+    presenter?.didTaskDeleted(task)
+  }
+
+  func didTapShareCell(_ cell: TaskTableViewCell) {
+
+  }
+
   func didToggleCompletion(for cell: TaskTableViewCell) {
     guard let indexPath = tableView.indexPath(for: cell) else { return }
     var task = filteredTasks[indexPath.row]
     task.completed.toggle()
+
     presenter?.didTaskCompleted(task)
   }
 }
@@ -191,6 +209,9 @@ extension TaskListViewController: TaskTableViewCellDelegate {
 
 protocol TaskTableViewCellDelegate: AnyObject {
   func didToggleCompletion(for cell: TaskTableViewCell)
+  func didTapEditCell(_ cell: TaskTableViewCell)
+  func didTapDeleteCell(_ cell: TaskTableViewCell)
+  func didTapShareCell(_ cell: TaskTableViewCell)
 }
 
 final class TaskTableViewCell: UITableViewCell {
@@ -229,6 +250,9 @@ final class TaskTableViewCell: UITableViewCell {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
 
     contentView.backgroundColor = UIColor(resource: .customBlack)
+
+    let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+    contentView.addInteraction(contextMenuInteraction)
 
     contentView.addSubview(circleButton)
     contentView.addSubview(taskNameLabel)
@@ -280,14 +304,14 @@ final class TaskTableViewCell: UITableViewCell {
     }
 
     // TODO: ачеркивание названия задачи, если выполнено
-//    let attributeString: NSMutableAttributedString
-//    if task.completed {
-//      attributeString = NSMutableAttributedString(string: task.todo)
-//      attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
-//    } else {
-//      attributeString = NSMutableAttributedString(string: task.todo)
-//    }
-//    taskNameLabel.attributedText = attributeString
+    //    let attributeString: NSMutableAttributedString
+    //    if task.completed {
+    //      attributeString = NSMutableAttributedString(string: task.todo)
+    //      attributeString.addAttribute(.strikethroughStyle, value: 2, range: NSRange(location: 0, length: task.todo.count))
+    //    } else {
+    //      attributeString = NSMutableAttributedString(string: task.todo)
+    //    }
+    //    taskNameLabel.attributedText = attributeString
 
     let strokeColor = UIColor(resource: .customStroke)
     taskNameLabel.textColor = task.completed ? strokeColor : UIColor(resource: .customWhite)
@@ -297,5 +321,35 @@ final class TaskTableViewCell: UITableViewCell {
 
   @objc private func didTapCircleButton() {
     delegate?.didToggleCompletion(for: self)
+  }
+}
+
+extension TaskTableViewCell: UIContextMenuInteractionDelegate {
+  func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+    return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+      let edit = UIAction(
+        title: "Edit",
+        image: UIImage(systemName: "square.and.pencil")
+      ) { _ in
+        self.delegate?.didTapEditCell(self)
+      }
+
+      let share = UIAction(
+        title: "Share",
+        image: UIImage(systemName: "square.and.arrow.up")
+      ) { _ in
+        self.delegate?.didTapShareCell(self)
+      }
+
+      let delete = UIAction(
+        title: "Delete",
+        image: UIImage(systemName: "trash"),
+        attributes: .destructive
+      ) { _ in
+        self.delegate?.didTapDeleteCell(self)
+      }
+
+      return UIMenu(title: "", children: [edit, share, delete])
+    }
   }
 }

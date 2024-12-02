@@ -4,14 +4,17 @@
 //  Created by Irina Deeva on 29/11/24
 //
 
+import Foundation
+
 enum TaskListState {
-  case initial, loading, data([TaskItem]), update(TaskItem), failed(Error)
+  case initial, loading, data([TaskItem]), update(TaskItem), delete(TaskItem),failed(Error)
 }
 
 protocol TaskListPresenterProtocol: AnyObject {
   func viewDidLoad()
   func didSelectTask(_ task: TaskItem)
   func didTaskCompleted(_ task: TaskItem)
+  func didTaskDeleted(_ task: TaskItem)
 }
 
 final class TaskListPresenter {
@@ -44,6 +47,9 @@ final class TaskListPresenter {
     case .update(let taskItem):
       view?.showLoadingAndBlockUI()
       interactor?.updateTaskItem(taskItem)
+    case .delete(let taskItem):
+      view?.showLoadingAndBlockUI()
+      interactor?.deleteTaskItem(taskItem)
     }
   }
 
@@ -65,6 +71,12 @@ final class TaskListPresenter {
 }
 
 extension TaskListPresenter: TaskListInteractorOutput {
+  func didFetchId(_ taskId: UUID) {
+    tasks.removeAll { $0.id == taskId }
+    
+    state = .data(tasks)
+  }
+  
   func didFetchTask(_ task: TaskItem) {
     if let index = tasks.firstIndex(where: { $0.id == task.id }) {
       tasks[index] = task
@@ -93,5 +105,9 @@ extension TaskListPresenter: TaskListPresenterProtocol {
 
   func didTaskCompleted(_ task: TaskItem) {
     state = .update(task)
+  }
+
+  func didTaskDeleted(_ task: TaskItem) {
+    state = .delete(task)
   }
 }
