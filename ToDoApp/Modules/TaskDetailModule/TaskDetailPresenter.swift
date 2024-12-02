@@ -92,7 +92,7 @@ extension TaskDetailPresenter: TaskDetailPresenterProtocol {
     } else {
       task = TaskItem(id: UUID(), todo: "New Task", completed: false, description: "", createdAt: Date())
       isNewTask = true
-       guard let task else { return }
+      guard let task else { return }
       state = .data(task)
     }
   }

@@ -110,13 +110,10 @@ extension TaskDetailViewController: TaskDetailViewProtocol {
     taskItem = task
     titleTextField.text = task.todo
 
-    let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    formatter.timeStyle = .none
     if let createdAt = task.createdAt {
-      dateLabel.text = formatter.string(from: createdAt)
+        dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
     } else {
-      dateLabel.text = formatter.string(from: Date())
+        dateLabel.text = DateFormatter.mediumDateFormatter.string(from: Date())
     }
 
     descriptionTextView.text = task.description ?? "No Description"

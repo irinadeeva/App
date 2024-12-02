@@ -300,7 +300,12 @@ final class TaskTableViewCell: UITableViewCell {
   func configure(with task: TaskItem) {
     taskNameLabel.text = task.todo
     descriptionLabel.text = task.description ?? "No description available"
-    dateLabel.text = task.createdAt != nil ? "\(task.createdAt!)" : "No date provided"
+
+    if let createdAt = task.createdAt {
+        dateLabel.text = DateFormatter.mediumDateFormatter.string(from: createdAt)
+    } else {
+        dateLabel.text = "No date provided"
+    }
 
     circleButton.addTarget(self, action: #selector(didTapCircleButton), for: .touchUpInside)
 

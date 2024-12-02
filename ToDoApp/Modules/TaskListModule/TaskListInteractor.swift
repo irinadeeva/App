@@ -25,8 +25,20 @@ final class TaskListInteractor: TaskListInteractorInput {
   func fetchTasks() {
     TaskService.shared.loadTaskItems { [weak self] result in
       switch result {
-        case .success(let tasks):
-        self?.output?.didFetchTasks(tasks)
+      case .success(let tasks):
+
+        let sortedTasks = tasks.sorted { (task1, task2) -> Bool in
+          if let date1 = task1.createdAt, let date2 = task2.createdAt {
+            return date1 < date2
+          }
+          else if task1.createdAt == nil {
+            return false
+          } else {
+            return true
+          }
+        }
+
+        self?.output?.didFetchTasks(sortedTasks)
       case .failure(let error):
         self?.output?.didFailToFetchTasks(with: error)
       }
@@ -36,7 +48,7 @@ final class TaskListInteractor: TaskListInteractorInput {
   func updateTaskItem(_ taskItem: TaskItem) {
     TaskService.shared.updateTaskItem(taskItem) { [weak self] result in
       switch result {
-        case .success(let task):
+      case .success(let task):
         self?.output?.didFetchTask(task)
       case .failure(let error):
         self?.output?.didFailToFetchTasks(with: error)
